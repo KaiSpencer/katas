@@ -1,119 +1,179 @@
 import unittest
 
-from parameterized import parameterized
-
-from validate_nhs_number import (
-    does_not_start_with_0,
-    is_nhs_number_valid,
-    no_alphabetic_characters,
-    is_10_chars,
-    no_special_characters,
-    no_blank_spaces,
-)
+import validate_nhs_number as sut
 
 
-class TestHelloWorld(unittest.TestCase):
-    def test_does_not_start_with_0_returns_true_if_not_0(self):
+class TestValidateNhsNumber(unittest.TestCase):
+    def test_first_char_is_zero_returns_true(self):
         # Arrange
-        nhs_number = "123456789"
+        expected = True
+        nhs_number = "0123123123"
+        # Act
+        actual = sut.first_char_is_zero(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_first_char_is_zero_returns_false(self):
+        # Arrange
+        expected = False
+        nhs_number = "123123123"
+        # Act
+        actual = sut.first_char_is_zero(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_is_numeric_returns_true(self):
+        # Arrange
+        expected = True
+        nhs_number = "123123123"
+        # Act
+        actual = sut.is_numeric(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_is_numeric_returns_false(self):
+        # Arrange
+        expected = False
+        nhs_number = "12a3123123"
+        # Act
+        actual = sut.is_numeric(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_length_is_10_returns_false(self):
+        # Arrange
+        expected = False
+        nhs_number = "12"
+        # Act
+        actual = sut.length_is_10(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_length_is_10_returns_true(self):
+        # Arrange
+        expected = True
+        nhs_number = "1234567890"
+        # Act
+        actual = sut.length_is_10(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_contains_no_special_chars_returns_true(self):
+        # Arrange
+        expected = True
+        nhs_number = "1234567890"
+        # Act
+        actual = sut.contains_no_special_chars(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_contains_no_special_chars_returns_false(self):
+        # Arrange
+        expected = False
+        nhs_number = "*"
+        # Act
+        actual = sut.contains_no_special_chars(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_no_blank_spaces_returns_false(self):
+        # Arrange
+        expected = False
+        nhs_number = "*  *"
+        # Act
+        actual = sut.no_blank_spaces(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_no_blank_spaces_returns_true(self):
+        # Arrange
+        expected = True
+        nhs_number = "**"
+        # Act
+        actual = sut.no_blank_spaces(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_validate_nhs_number_returns_true(self):
+        # Arrange
+        expected = True
+        nhs_number = "1231231238"
+        # Act
+        actual = sut.validate_nhs_number(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_validate_nhs_number_returns_false(self):
+        # Arrange
+        expected = False
+        nhs_number = " *s"
+        # Act
+        actual = sut.validate_nhs_number(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_digit_multiplication_returns_correct_list(self):
+        # Arrange
+        expected = [10, 18, 24, 28, 30, 30, 28, 24, 18]
+        nhs_number = "1234567890"
+        # Act
+        actual = sut.digit_multiplication(nhs_number)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_digit_sum_division_remainder_returns_correct(self):
+        # Arrange
+        expected = 1
+        multiplication_list = [10, 18, 24, 28, 30, 30, 28, 24, 18]
+        # Act
+        actual = sut.digit_sum_division_remainder(multiplication_list)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_calculate_check_digit_standard_case(self):
+        # Arrange
+        expected = 8
+        remainder = 3
+        # Act
+        actual = sut.calculate_check_digit(remainder)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_calculate_check_digit_11_substitution(self):
+        # Arrange
+        expected = 0
+        remainder = 0
+        # Act
+        actual = sut.calculate_check_digit(remainder)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_validate_checkdigit_returns_true(self):
+        # Arrange
+        nhs_number = "1231231231"
+        check_digit = 1
         expected = True
         # Act
-        actual = does_not_start_with_0(nhs_number)
+        actual = sut.validate_checkdigit(nhs_number, check_digit)
         # Assert
         self.assertEqual(expected, actual)
 
-    def test_does_not_start_with_0_returns_false_if_0(self):
+    def test_validate_checkdigit_returns_false_no_match(self):
         # Arrange
-        nhs_number = "023456789"
+        nhs_number = "1231231232"
+        check_digit = 1
         expected = False
         # Act
-        actual = does_not_start_with_0(nhs_number)
+        actual = sut.validate_checkdigit(nhs_number, check_digit)
         # Assert
         self.assertEqual(expected, actual)
 
-    def test_no_alphabetic_characters_returns_true_if_no_alphabetic(self):
+    def test_validate_checkdigit_returns_false_check_digit_10(self):
         # Arrange
-        nhs_number = "023456789"
-        expected = True
-        # Act
-        actual = no_alphabetic_characters(nhs_number)
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test_no_alphabetic_characters_returns_falsee_if_contains_alphabetic(self):
-        # Arrange
-        nhs_number = "s23456789"
+        nhs_number = "1231231231"
+        check_digit = 10
         expected = False
         # Act
-        actual = no_alphabetic_characters(nhs_number)
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test_is_10_chars_returns_true_if_10(self):
-        # Arrange
-        nhs_number = "0123456789"
-        expected = True
-        # Act
-        actual = is_10_chars(nhs_number)
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test_is_10_chars_returns_false_if_not_10(self):
-        # Arrange
-        nhs_number = "01234567899"
-        expected = False
-        # Act
-        actual = is_10_chars(nhs_number)
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test_no_special_characters_returns_true_if_no_special_characters(self):
-        # Arrange
-        nhs_number = "01234567899"
-        expected = True
-        # Act
-        actual = no_special_characters(nhs_number)
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test_no_special_characters_returns_false_if_contains_special_characters(self):
-        # Arrange
-        nhs_number = "*1234567899"
-        expected = False
-        # Act
-        actual = no_special_characters(nhs_number)
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test_no_blank_spaces_returns_true_if_no_blank_spaces(self):
-        # Arrange
-        nhs_number = "*1234567899"
-        expected = True
-        # Act
-        actual = no_blank_spaces(nhs_number)
-        # Assert
-        self.assertEqual(expected, actual)
-
-    def test_no_blank_spaces_returns_false_if_blank_spaces(self):
-        # Arrange
-        nhs_number = "*12345 7899"
-        expected = False
-        # Act
-        actual = no_blank_spaces(nhs_number)
-        # Assert
-        self.assertEqual(expected, actual)
-
-    @parameterized.expand(
-        [
-            ("0", False),
-            ("asd", False),
-            ("1123456789", True),
-            ("**********", False),
-            ("1234567 99", False),
-        ]
-    )
-    def test_is_nhs_number_valid(self, nhs_number, expected):
-        # Arrange / Act
-        actual = is_nhs_number_valid(nhs_number)
+        actual = sut.validate_checkdigit(nhs_number, check_digit)
         # Assert
         self.assertEqual(expected, actual)

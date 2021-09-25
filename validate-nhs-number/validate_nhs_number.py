@@ -15,40 +15,73 @@ STEP 4 - Subtract the remainder from 11 to get the calculated check digit. If th
 STEP 5 - Validate your calculated check digit against the final digit in the NHS number (checksum)
 """
 
-
-SPECIAL_CHARACTERS = "!@#$%^&*()-+_"
-
-
-def does_not_start_with_0(nhs_number: str):
-    return nhs_number[0] != "0"
+from typing import List
 
 
-def no_alphabetic_characters(nhs_number: str):
+SPECIAL_CHARS = "!@#$%^&*()-+_"
+
+
+def first_char_is_zero(nhs_number: str):
+    return nhs_number[0] == "0"
+
+
+def is_numeric(nhs_number: str):
     return nhs_number.isnumeric()
 
 
-def is_10_chars(nhs_number: str):
+def length_is_10(nhs_number: str):
     return len(nhs_number) == 10
 
 
-def no_special_characters(nhs_number: str):
-    for number in nhs_number:
-        if number in SPECIAL_CHARACTERS:
-            return False
-    return True
+def contains_no_special_chars(nhs_number: str):
+    return all([char not in nhs_number for char in SPECIAL_CHARS])
 
 
 def no_blank_spaces(nhs_number: str):
     return " " not in nhs_number
 
 
-def is_nhs_number_valid(nhs_number: str):
-    return all(
+def validate_nhs_number(nhs_number: str):
+    chars_valid = all(
         [
-            does_not_start_with_0(nhs_number),
-            no_alphabetic_characters(nhs_number),
-            is_10_chars(nhs_number),
-            no_special_characters(nhs_number),
+            not first_char_is_zero(nhs_number),
+            is_numeric(nhs_number),
+            length_is_10(nhs_number),
+            contains_no_special_chars(nhs_number),
             no_blank_spaces(nhs_number),
         ]
     )
+    if not chars_valid:
+        return False
+
+    check_digit = calculate_check_digit(
+        digit_sum_division_remainder(digit_multiplication(nhs_number))
+    )
+    return validate_checkdigit(nhs_number, check_digit)
+
+
+def digit_multiplication(nhs_number: str) -> List[int]:
+    output = []
+    for index, number in enumerate(nhs_number):
+        if index == len(nhs_number) - 1:
+            continue
+        multiplication_result = int(number) * (10 - index)
+        output.append(multiplication_result)
+    return output
+
+
+def digit_sum_division_remainder(digits: List[int]) -> int:
+    return sum(digits) % 11
+
+
+def calculate_check_digit(remainder: int):
+    check_digit = 11 - remainder
+    if check_digit == 11:
+        return 0
+    return check_digit
+
+
+def validate_checkdigit(nhs_number: str, check_digit: int) -> bool:
+    if check_digit == 10:
+        return False
+    return nhs_number[-1] == str(check_digit)
